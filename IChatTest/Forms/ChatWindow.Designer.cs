@@ -27,9 +27,9 @@
             labelUsername = new Label();
             buttonSend = new Button();
             textBoxMessage = new TextBox();
-            listBoxMessages = new ListBox();
             timer1 = new System.Windows.Forms.Timer(components);
             listBoxUsers = new ListBox();
+            chatPanel = new FlowLayoutPanel();
             SuspendLayout();
             // 
             // labelUsername
@@ -57,15 +57,7 @@
             textBoxMessage.Name = "textBoxMessage";
             textBoxMessage.Size = new Size(543, 27);
             textBoxMessage.TabIndex = 5;
-            // 
-            // listBoxMessages
-            // 
-            listBoxMessages.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            listBoxMessages.FormattingEnabled = true;
-            listBoxMessages.Location = new Point(154, 27);
-            listBoxMessages.Name = "listBoxMessages";
-            listBoxMessages.Size = new Size(511, 364);
-            listBoxMessages.TabIndex = 4;
+            textBoxMessage.KeyDown += textBoxMessage_KeyDown;
             // 
             // timer1
             // 
@@ -82,16 +74,30 @@
             listBoxUsers.Size = new Size(137, 364);
             listBoxUsers.TabIndex = 8;
             // 
+            // chatPanel
+            // 
+            chatPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            chatPanel.AutoScroll = true;
+            chatPanel.BackColor = SystemColors.Window;
+            chatPanel.BorderStyle = BorderStyle.FixedSingle;
+            chatPanel.FlowDirection = FlowDirection.TopDown;
+            chatPanel.Location = new Point(154, 28);
+            chatPanel.Name = "chatPanel";
+            chatPanel.Size = new Size(512, 364);
+            chatPanel.TabIndex = 9;
+            chatPanel.WrapContents = false;
+            // 
             // ChatWindow
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(678, 451);
+            Controls.Add(chatPanel);
             Controls.Add(listBoxUsers);
             Controls.Add(labelUsername);
             Controls.Add(buttonSend);
             Controls.Add(textBoxMessage);
-            Controls.Add(listBoxMessages);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "ChatWindow";
             Text = "IChat";
@@ -104,8 +110,8 @@
         private Label labelUsername;
         private Button buttonSend;
         private TextBox textBoxMessage;
-        private ListBox listBoxMessages;
         private System.Windows.Forms.Timer timer1;
         private ListBox listBoxUsers;
+        private FlowLayoutPanel chatPanel;
     }
 }

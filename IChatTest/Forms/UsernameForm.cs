@@ -22,5 +22,12 @@ namespace IChatTest {
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
+
+        private void textBoxUsername_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                buttonJoin.PerformClick();
+                e.SuppressKeyPress = true;
+            }
+        }
     }
 }

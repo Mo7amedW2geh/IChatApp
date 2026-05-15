@@ -35,6 +35,7 @@
             textBoxUsername.Name = "textBoxUsername";
             textBoxUsername.Size = new Size(261, 27);
             textBoxUsername.TabIndex = 0;
+            textBoxUsername.KeyDown += textBoxUsername_KeyDown;
             // 
             // buttonJoin
             // 
@@ -65,6 +66,7 @@
             Controls.Add(label1);
             Controls.Add(buttonJoin);
             Controls.Add(textBoxUsername);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             MaximizeBox = false;
             Name = "UsernameForm";
             Text = "IChat";
