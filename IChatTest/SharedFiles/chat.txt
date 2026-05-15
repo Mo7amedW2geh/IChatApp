@@ -1,8 +1,0 @@
-*** Mohamed joined the chat ***
-*** marco joined the chat ***
-*** marco left the chat ***
-*** karem joined the chat ***
-[07:12:49]Mohamed: Hi
-[07:13:03]karem: Hello
-*** karem left the chat ***
-*** Mohamed left the chat ***
