@@ -13,7 +13,7 @@
                 Sender = username,
                 Text = $"{username} joined the chat",
                 Type = "system",
-                Time = DateTime.Now.ToString("HH:mm:ss")
+                Time = DateTime.Now.ToString("hh:mm:ss")
             });
 
             RefreshChat();
@@ -26,7 +26,7 @@
                 Sender = username,
                 Text = textBoxMessage.Text,
                 Type = "user",
-                Time = DateTime.Now.ToString("HH:mm:ss")
+                Time = DateTime.Now.ToString("hh:mm:ss")
             };
             ChatFile.WriteMessage(msg);
             textBoxMessage.Clear();
@@ -69,7 +69,7 @@
                 Sender = username,
                 Text = $"{username} left the chat",
                 Type = "system",
-                Time = DateTime.Now.ToString("HH:mm:ss")
+                Time = DateTime.Now.ToString("hh:mm:ss")
             });
             base.OnFormClosing(e);
         }
