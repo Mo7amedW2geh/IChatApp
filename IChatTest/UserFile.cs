@@ -4,13 +4,15 @@ using System.Text;
 
 namespace IChatTest {
     internal class UserFile {
-        private static readonly string path = Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName, "SharedFiles", "users.txt");
+        private static readonly string projectPath = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
+        private static readonly string dectionaryPath = Path.Combine(projectPath, "SharedFiles");
+        private static readonly string path = Path.Combine(dectionaryPath, "users.txt");
         private static readonly Mutex mutex = new(false, "Global\\UserMutex");
 
         public static void AddUser(string username) {
             mutex.WaitOne();
 
-            Directory.CreateDirectory("SharedFiles");
+            Directory.CreateDirectory(dectionaryPath);
             if (!File.Exists(path)) {
                 File.Create(path).Close();
             }
@@ -36,7 +38,7 @@ namespace IChatTest {
         public static void RemoveUser(string username) {
             mutex.WaitOne();
 
-            Directory.CreateDirectory("SharedFiles");
+            Directory.CreateDirectory(dectionaryPath);
             if (File.Exists(path)) {
                 List<string> users = new List<String>(File.ReadAllLines(path));
 
@@ -49,7 +51,7 @@ namespace IChatTest {
         }
 
         public static string[] ReadUsers() {
-            Directory.CreateDirectory("SharedFiles");
+            Directory.CreateDirectory(dectionaryPath);
             if (!File.Exists(path)) {
                 return [];
             }
