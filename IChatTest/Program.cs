@@ -8,13 +8,12 @@ namespace IChatTest {
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            ChatWindow userA = new ChatWindow("User A");
-            ChatWindow userB = new ChatWindow("User B");
+            UsernameForm usernameForm = new UsernameForm();
 
-            userA.Show();
-            userB.Show();
+            if (usernameForm.ShowDialog() == DialogResult.OK)
+                Application.Run(new ChatWindow(usernameForm.Username));
 
-            Application.Run();
+
             //Application.Run(new Form1());
         }
     }
