@@ -1,3 +1,5 @@
+using IChatTest.Mangers;
+
 namespace IChatTest {
     internal static class Program {
         /// <summary>
@@ -8,6 +10,7 @@ namespace IChatTest {
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
+            UsersFile.RemoveInactiveUsers();
             UsernameForm usernameForm = new UsernameForm();
 
             if (usernameForm.ShowDialog() == DialogResult.OK)
