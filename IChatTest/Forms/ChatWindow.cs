@@ -92,13 +92,6 @@ namespace IChatTest {
             });
             base.OnFormClosing(e);
         }
-
-        private void textBoxMessage_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter) {
-                buttonSend.PerformClick();
-                e.SuppressKeyPress = true;
-            }
-        }
         private void AddLeft(Entities.Message msg) {
             Panel row = CreateRow();
 
@@ -168,6 +161,16 @@ namespace IChatTest {
 
             var last = chatPanel.Controls[chatPanel.Controls.Count - 1];
             chatPanel.ScrollControlIntoView(last);
+        }
+
+        private void textBoxMessage_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter && e.Shift) {
+                return;
+            }
+            if (e.KeyCode == Keys.Enter) {
+                buttonSend.PerformClick();
+                e.SuppressKeyPress = true;
+            }
         }
 
         private void listBoxUsers_DrawItem(object sender, DrawItemEventArgs e) {

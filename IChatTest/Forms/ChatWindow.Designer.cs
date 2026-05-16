@@ -44,7 +44,7 @@
             // 
             // buttonSend
             // 
-            buttonSend.Location = new Point(561, 409);
+            buttonSend.Location = new Point(561, 424);
             buttonSend.Name = "buttonSend";
             buttonSend.Size = new Size(105, 29);
             buttonSend.TabIndex = 6;
@@ -54,10 +54,13 @@
             // 
             // textBoxMessage
             // 
-            textBoxMessage.Location = new Point(11, 411);
+            textBoxMessage.AcceptsReturn = true;
+            textBoxMessage.Location = new Point(11, 399);
+            textBoxMessage.Multiline = true;
             textBoxMessage.Name = "textBoxMessage";
             textBoxMessage.PlaceholderText = "Message";
-            textBoxMessage.Size = new Size(543, 27);
+            textBoxMessage.ScrollBars = ScrollBars.Vertical;
+            textBoxMessage.Size = new Size(543, 54);
             textBoxMessage.TabIndex = 5;
             textBoxMessage.KeyDown += textBoxMessage_KeyDown;
             // 
@@ -104,7 +107,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(678, 451);
+            ClientSize = new Size(678, 465);
             Controls.Add(labelChat);
             Controls.Add(chatPanel);
             Controls.Add(listBoxUsers);

@@ -22,11 +22,11 @@ namespace IChatTest {
                 return;
             }
 
-            String[] users = UsersFile.ReadUsers();
+            var users = UsersFile.ReadUsersInfo().Select(u => u.Username).ToArray();
 
             bool exists = false;
 
-            foreach (string user in users) {
+            foreach (var user in users) {
                 if (user == Username) {
                     exists = true;
                     break;
