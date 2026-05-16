@@ -1,37 +1,26 @@
 ﻿using IChatTest.Mangers;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace IChatTest {
     public partial class UsernameForm : Form {
+
+        // Fields
         public string Username = "";
+
+        // Constructor
         public UsernameForm() {
             InitializeComponent();
         }
 
+        // Event Handlers
         private void buttonJoin_Click(object sender, EventArgs e) {
             Username = textBoxUsername.Text;
+
             if (string.IsNullOrWhiteSpace(Username)) {
                 MessageBox.Show("Please enter a valid username.");
                 return;
             }
 
-            var users = UsersFile.ReadUsersInfo().Select(u => u.Username).ToArray();
-
-            bool exists = false;
-
-            foreach (var user in users) {
-                if (user == Username) {
-                    exists = true;
-                    break;
-                }
-            }
+            bool exists = UsersFile.ReadUsersInfo().Any(u => u.Username == Username);
 
             if (exists) {
                 MessageBox.Show("Username is already taken.");

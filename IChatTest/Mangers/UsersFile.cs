@@ -1,41 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using User = IChatTest.Entities.User;
 
 namespace IChatTest.Mangers {
     internal class UsersFile {
+
+        // Fields
         private static readonly string projectPath = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
-        private static readonly string dectionaryPath = Path.Combine(projectPath, "SharedFiles");
-        private static readonly string path = Path.Combine(dectionaryPath, "users.txt");
+        private static readonly string directoryPath = Path.Combine(projectPath, "SharedFiles");
+        private static readonly string path = Path.Combine(directoryPath, "users.txt");
         private static readonly Mutex mutex = new(false, "Global\\UserMutex");
 
+        // Methods
         public static void AddOrUpdateUser(string username) {
             mutex.WaitOne();
-
             try {
-                Directory.CreateDirectory(dectionaryPath);
-                if (!File.Exists(path)) {
+                Directory.CreateDirectory(directoryPath);
+                if (!File.Exists(path))
                     File.Create(path).Close();
-                }
 
                 var users = ReadUsersInfo();
+                var existing = users.FirstOrDefault(u => u.Username == username);
 
-                bool exists = false;
-
-                foreach (var user in users) {
-                    if (user.Username == username) {
-                        user.LastSeen = DateTime.Now;
-                        exists = true;
-                        break;
-                    }
-                }
-
-                if (!exists) {
-                    users.Add(new Entities.User {
-                        Username = username,
-                        LastSeen = DateTime.Now
-                    });
-                }
+                if (existing != null)
+                    existing.LastSeen = DateTime.Now;
+                else
+                    users.Add(new User { Username = username, LastSeen = DateTime.Now });
 
                 SaveUsers(users);
             } finally {
@@ -45,76 +33,52 @@ namespace IChatTest.Mangers {
 
         public static void RemoveUser(string username) {
             mutex.WaitOne();
-
             try {
-                Directory.CreateDirectory(dectionaryPath);
-                if (File.Exists(path)) {
-                    List<string> users = new List<String>(File.ReadAllLines(path));
+                Directory.CreateDirectory(directoryPath);
+                if (!File.Exists(path)) return;
 
-                    users.Remove(username);
-
-                    File.WriteAllLines(path, users);
-                }
+                var users = ReadUsersInfo().Where(u => u.Username != username).ToList();
+                SaveUsers(users);
             } finally {
                 mutex.ReleaseMutex();
             }
         }
 
-        public static List<Entities.User> ReadUsersInfo() {
-            List<Entities.User> users = new List<Entities.User>();
+        public static void RemoveInactiveUsers() {
+            mutex.WaitOne();
+            try {
+                var users = ReadUsersInfo().Where(u => (DateTime.Now - u.LastSeen).TotalSeconds < 5).ToList();
+                SaveUsers(users);
+            } finally {
+                mutex.ReleaseMutex();
+            }
+        }
 
-            Directory.CreateDirectory(dectionaryPath);
-            if (!File.Exists(path))
-                return users;
+        public static List<User> ReadUsersInfo() {
+            var users = new List<User>();
 
-            var lines = File.ReadAllLines(path);
+            Directory.CreateDirectory(directoryPath);
+            if (!File.Exists(path)) return users;
 
-            foreach (var line in lines) {
+            foreach (var line in File.ReadAllLines(path)) {
                 var parts = line.Split('|');
+                if (parts.Length != 2) continue;
 
-                if (parts.Length != 2)
-                    continue;
-
-                if (DateTime.TryParse(parts[1], out DateTime time)) {
-                    users.Add(new Entities.User {
-                        Username = parts[0],
-                        LastSeen = time
-                    });
-                }
+                if (DateTime.TryParse(parts[1], out DateTime time))
+                    users.Add(new User { Username = parts[0], LastSeen = time });
             }
 
             return users;
         }
 
-        private static void SaveUsers(List<Entities.User> users) {
-            List<string> lines = new List<string>();
-
-            foreach (var user in users) {
-                lines.Add($"{user.Username}|{user.LastSeen:o}");
-            }
-
-            File.WriteAllLines(path, lines);
-        }
-
-        public static void RemoveInactiveUsers() {
-            mutex.WaitOne();
-
-            try {
-                var users = ReadUsersInfo();
-                users = users.Where(u => (DateTime.Now - u.LastSeen).TotalSeconds < 5).ToList();
-                SaveUsers(users);
-            } finally { 
-                mutex.ReleaseMutex(); 
-            }
-        }
-
         public static string[] ReadUsers() {
-            Directory.CreateDirectory(dectionaryPath);
-            if (!File.Exists(path)) {
-                return [];
-            }
-
+            Directory.CreateDirectory(directoryPath);
+            if (!File.Exists(path)) return [];
             return File.ReadAllLines(path);
+        }
+
+        private static void SaveUsers(List<User> users) {
+            File.WriteAllLines(path, users.Select(u => $"{u.Username}|{u.LastSeen:o}"));
         }
     }
 }

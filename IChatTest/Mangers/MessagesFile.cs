@@ -1,45 +1,38 @@
-﻿using IChatTest.Entities;
-using System;
-using System.Collections.Generic;
-using System.DirectoryServices.ActiveDirectory;
-using System.Text;
+﻿using System.Text.Json;
+using Message = IChatTest.Entities.Message;
 
 namespace IChatTest.Mangers {
     internal class MessagesFile {
+
+        // Fields
         private static readonly string projectPath = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
-        private static readonly string dectionaryPath = Path.Combine(projectPath, "SharedFiles");
-        private static readonly string path = Path.Combine(dectionaryPath, "chat.json");
-        private static Mutex mutex = new(false, "Global\\ChatMutex");
+        private static readonly string directoryPath = Path.Combine(projectPath, "SharedFiles");
+        private static readonly string path = Path.Combine(directoryPath, "chat.json");
+        private static readonly Mutex mutex = new(false, "Global\\ChatMutex");
 
-
-        static public void WriteMessage(Entities.Message msg) {
+        // Methods
+        public static void WriteMessage(Message msg) {
             mutex.WaitOne();
-
             try {
-                Directory.CreateDirectory(dectionaryPath);
-                if (!File.Exists(path)) {
+                Directory.CreateDirectory(directoryPath);
+                if (!File.Exists(path))
                     File.Create(path).Close();
-                }
 
-                var json = System.Text.Json.JsonSerializer.Serialize(msg);
-                File.AppendAllText(path, json + "\n");
+                File.AppendAllText(path, JsonSerializer.Serialize(msg) + "\n");
             } finally {
                 mutex.ReleaseMutex();
             }
         }
 
-        static public List<Entities.Message> ReadMessages() {
-            Directory.CreateDirectory(dectionaryPath);
-            if (!File.Exists(path))
-                return [];
+        public static List<Message> ReadMessages() {
+            Directory.CreateDirectory(directoryPath);
+            if (!File.Exists(path)) return [];
 
-            var lines = File.ReadAllLines(path);
+            var result = new List<Message>();
 
-            List<Entities.Message> result = new List<Entities.Message>();
-
-            foreach (var line in lines) {
+            foreach (var line in File.ReadAllLines(path)) {
                 try {
-                    result.Add(System.Text.Json.JsonSerializer.Deserialize<Entities.Message>(line));
+                    result.Add(JsonSerializer.Deserialize<Message>(line));
                 } catch { }
             }
 
