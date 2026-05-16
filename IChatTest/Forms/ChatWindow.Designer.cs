@@ -24,22 +24,23 @@
         /// </summary>
         private void InitializeComponent() {
             components = new System.ComponentModel.Container();
-            labelUsername = new Label();
+            labelUsers = new Label();
             buttonSend = new Button();
             textBoxMessage = new TextBox();
             timer1 = new System.Windows.Forms.Timer(components);
             listBoxUsers = new ListBox();
             chatPanel = new FlowLayoutPanel();
+            labelChat = new Label();
             SuspendLayout();
             // 
-            // labelUsername
+            // labelUsers
             // 
-            labelUsername.AutoSize = true;
-            labelUsername.Location = new Point(11, 4);
-            labelUsername.Name = "labelUsername";
-            labelUsername.Size = new Size(38, 20);
-            labelUsername.TabIndex = 7;
-            labelUsername.Text = "User";
+            labelUsers.AutoSize = true;
+            labelUsers.Location = new Point(11, 4);
+            labelUsers.Name = "labelUsers";
+            labelUsers.Size = new Size(44, 20);
+            labelUsers.TabIndex = 7;
+            labelUsers.Text = "Users";
             // 
             // buttonSend
             // 
@@ -55,6 +56,7 @@
             // 
             textBoxMessage.Location = new Point(11, 411);
             textBoxMessage.Name = "textBoxMessage";
+            textBoxMessage.PlaceholderText = "Message";
             textBoxMessage.Size = new Size(543, 27);
             textBoxMessage.TabIndex = 5;
             textBoxMessage.KeyDown += textBoxMessage_KeyDown;
@@ -62,17 +64,19 @@
             // timer1
             // 
             timer1.Enabled = true;
-            timer1.Interval = 500;
+            timer1.Interval = 1000;
             timer1.Tick += timer1_Tick;
             // 
             // listBoxUsers
             // 
+            listBoxUsers.DrawMode = DrawMode.OwnerDrawFixed;
             listBoxUsers.FormattingEnabled = true;
             listBoxUsers.Location = new Point(10, 28);
             listBoxUsers.Margin = new Padding(3, 4, 3, 4);
             listBoxUsers.Name = "listBoxUsers";
             listBoxUsers.Size = new Size(137, 364);
             listBoxUsers.TabIndex = 8;
+            listBoxUsers.DrawItem += listBoxUsers_DrawItem;
             // 
             // chatPanel
             // 
@@ -87,14 +91,24 @@
             chatPanel.TabIndex = 9;
             chatPanel.WrapContents = false;
             // 
+            // labelChat
+            // 
+            labelChat.AutoSize = true;
+            labelChat.Location = new Point(154, 4);
+            labelChat.Name = "labelChat";
+            labelChat.Size = new Size(83, 20);
+            labelChat.TabIndex = 10;
+            labelChat.Text = "Public Chat";
+            // 
             // ChatWindow
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(678, 451);
+            Controls.Add(labelChat);
             Controls.Add(chatPanel);
             Controls.Add(listBoxUsers);
-            Controls.Add(labelUsername);
+            Controls.Add(labelUsers);
             Controls.Add(buttonSend);
             Controls.Add(textBoxMessage);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -107,11 +121,12 @@
 
         #endregion
 
-        private Label labelUsername;
+        private Label labelUsers;
         private Button buttonSend;
         private TextBox textBoxMessage;
         private System.Windows.Forms.Timer timer1;
         private ListBox listBoxUsers;
         private FlowLayoutPanel chatPanel;
+        private Label labelChat;
     }
 }

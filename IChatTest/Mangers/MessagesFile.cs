@@ -1,42 +1,45 @@
-﻿using System;
+﻿using IChatTest.Entities;
+using System;
 using System.Collections.Generic;
 using System.DirectoryServices.ActiveDirectory;
 using System.Text;
 
-namespace IChatTest {
-    internal class ChatFile {
+namespace IChatTest.Mangers {
+    internal class MessagesFile {
         private static readonly string projectPath = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.Parent.FullName;
         private static readonly string dectionaryPath = Path.Combine(projectPath, "SharedFiles");
         private static readonly string path = Path.Combine(dectionaryPath, "chat.json");
         private static Mutex mutex = new(false, "Global\\ChatMutex");
 
 
-        static public void WriteMessage(Message msg) {
+        static public void WriteMessage(Entities.Message msg) {
             mutex.WaitOne();
 
-            Directory.CreateDirectory(dectionaryPath);
-            if (!File.Exists(path)) {
-                File.Create(path).Close();
+            try {
+                Directory.CreateDirectory(dectionaryPath);
+                if (!File.Exists(path)) {
+                    File.Create(path).Close();
+                }
+
+                var json = System.Text.Json.JsonSerializer.Serialize(msg);
+                File.AppendAllText(path, json + "\n");
+            } finally {
+                mutex.ReleaseMutex();
             }
-
-            var json = System.Text.Json.JsonSerializer.Serialize(msg);
-            File.AppendAllText(path, json + "\n");
-
-            mutex.ReleaseMutex();
         }
 
-        static public List<Message> ReadMessages() {
+        static public List<Entities.Message> ReadMessages() {
             Directory.CreateDirectory(dectionaryPath);
             if (!File.Exists(path))
                 return [];
 
             var lines = File.ReadAllLines(path);
 
-            List<Message> result = new List<Message>();
+            List<Entities.Message> result = new List<Entities.Message>();
 
             foreach (var line in lines) {
                 try {
-                    result.Add(System.Text.Json.JsonSerializer.Deserialize<Message>(line));
+                    result.Add(System.Text.Json.JsonSerializer.Deserialize<Entities.Message>(line));
                 } catch { }
             }
 

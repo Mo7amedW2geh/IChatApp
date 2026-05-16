@@ -33,6 +33,7 @@
             textBoxUsername.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             textBoxUsername.Location = new Point(12, 44);
             textBoxUsername.Name = "textBoxUsername";
+            textBoxUsername.PlaceholderText = "Username";
             textBoxUsername.Size = new Size(261, 27);
             textBoxUsername.TabIndex = 0;
             textBoxUsername.KeyDown += textBoxUsername_KeyDown;

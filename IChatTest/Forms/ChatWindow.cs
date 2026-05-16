@@ -1,15 +1,20 @@
-﻿namespace IChatTest {
+﻿using IChatTest.Entities;
+using IChatTest.Mangers;
+
+namespace IChatTest {
     public partial class ChatWindow : Form {
         private string username;
+        private int rowWidth;
         private int lastMessageCount = 0;
+        private string[] lastUsers = Array.Empty<string>();
 
         public ChatWindow(string user) {
             InitializeComponent();
             username = user;
-            labelUsername.Text = username;
+            rowWidth = chatPanel.ClientSize.Width - SystemInformation.VerticalScrollBarWidth - 10;
 
-            UserFile.AddUser(username);
-            ChatFile.WriteMessage(new Message {
+            UsersFile.AddOrUpdateUser(username);
+            MessagesFile.WriteMessage(new Entities.Message {
                 Sender = username,
                 Text = $"{username} joined the chat",
                 Type = "system",
@@ -22,24 +27,24 @@
 
         private void buttonSend_Click(object sender, EventArgs e) {
             if (string.IsNullOrWhiteSpace(textBoxMessage.Text)) return;
-            var msg = new Message() {
+            var msg = new Entities.Message() {
                 Sender = username,
                 Text = textBoxMessage.Text,
                 Type = "user",
                 Time = DateTime.Now.ToString("hh:mm:ss")
             };
-            ChatFile.WriteMessage(msg);
+            MessagesFile.WriteMessage(msg);
             textBoxMessage.Clear();
         }
 
         private void RefreshChat() {
-            var messages = ChatFile.ReadMessages();
+            var messages = MessagesFile.ReadMessages();
             if (messages.Count == lastMessageCount)
                 return;
 
-            chatPanel.Controls.Clear();
+            var newMessages = messages.Skip(lastMessageCount).ToList();
 
-            foreach (var msg in messages) {
+            foreach (var msg in newMessages) {
                 if (msg.Type == "system")
                     AddCenter(msg);
                 else if (msg.Sender == username)
@@ -53,19 +58,33 @@
         }
 
         private void RefreshUserList() {
+            var users = UsersFile.ReadUsersInfo().Select(u => u.Username).ToArray();
+            if (users.SequenceEqual(lastUsers))
+                return;
+
+            listBoxUsers.BeginUpdate();
             listBoxUsers.Items.Clear();
-            string[] users = UserFile.ReadUsers();
-            listBoxUsers.Items.AddRange(users);
+
+            listBoxUsers.Items.Add(username);
+            foreach (var user in users)
+                if (user != username)
+                    listBoxUsers.Items.Add(user);
+
+            lastUsers = users;
+            listBoxUsers.EndUpdate();
         }
 
         private void timer1_Tick(object sender, EventArgs e) {
+            UsersFile.AddOrUpdateUser(username);
+            UsersFile.RemoveInactiveUsers();
+
             RefreshChat();
             RefreshUserList();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e) {
-            UserFile.RemoveUser(username);
-            ChatFile.WriteMessage(new Message {
+            UsersFile.RemoveUser(username);
+            MessagesFile.WriteMessage(new Entities.Message {
                 Sender = username,
                 Text = $"{username} left the chat",
                 Type = "system",
@@ -80,48 +99,43 @@
                 e.SuppressKeyPress = true;
             }
         }
-        private void AddLeft(Message msg) {
+        private void AddLeft(Entities.Message msg) {
             Panel row = CreateRow();
 
             Label lbl = new Label();
-            lbl.Text = $"[{msg.Time}] {msg.Sender}: {msg.Text}";
+            lbl.Text = $"{msg.Sender}:\n{msg.Text}\n[{msg.Time}] ";
             lbl.AutoSize = true;
             lbl.BackColor = Color.LightGray;
             lbl.Padding = new Padding(8);
             lbl.AutoSize = true;
-            lbl.MaximumSize = new Size(chatPanel.ClientSize.Width - 40, 0);
-
-            lbl.Location = new Point(0, 5); // LEFT FIXED
+            lbl.MaximumSize = new Size(rowWidth - 10, 0);
 
             row.Controls.Add(lbl);
             chatPanel.Controls.Add(row);
+
+            lbl.Location = new Point(0, 5); // LEFT FIXED
             row.Height = lbl.Height + 10;
         }
 
-        private void AddRight(Message msg) {
+        private void AddRight(Entities.Message msg) {
             Panel row = CreateRow();
 
             Label lbl = new Label();
-            lbl.Text = $"[{msg.Time}] {msg.Text}";
-            lbl.AutoSize = true;
+            lbl.Text = $"you:\n{msg.Text}\n[{msg.Time}] ";
             lbl.BackColor = Color.LightBlue;
             lbl.Padding = new Padding(8);
             lbl.AutoSize = true;
-            lbl.MaximumSize = new Size(chatPanel.ClientSize.Width - 40, 0);
-
-            lbl.Location = new Point(
-                row.Width - lbl.PreferredWidth - 10,
-                5
-            );
-
-            lbl.Anchor = AnchorStyles.Right;
+            lbl.MaximumSize = new Size(rowWidth - 10, 0);
+            lbl.Anchor = AnchorStyles.Right | AnchorStyles.Top;
 
             row.Controls.Add(lbl);
             chatPanel.Controls.Add(row);
+
+            lbl.Location = new Point(rowWidth - lbl.Width, 5);
             row.Height = lbl.Height + 10;
         }
 
-        private void AddCenter(Message msg) {
+        private void AddCenter(Entities.Message msg) {
             Panel row = CreateRow();
 
             Label lbl = new Label();
@@ -130,21 +144,19 @@
             lbl.BackColor = Color.Gold;
             lbl.Padding = new Padding(8);
             lbl.AutoSize = true;
-            lbl.MaximumSize = new Size(chatPanel.ClientSize.Width - 40, 0);
-
-            lbl.Location = new Point(
-                (row.Width - lbl.PreferredWidth) / 2,
-                5
-            );
+            lbl.MaximumSize = new Size(rowWidth - 10, 0);
 
             row.Controls.Add(lbl);
             chatPanel.Controls.Add(row);
+
+            lbl.Location = new Point((rowWidth - lbl.PreferredWidth) / 2, 5);
             row.Height = lbl.Height + 10;
         }
 
         private Panel CreateRow() {
+            int scrollBarWidth = SystemInformation.VerticalScrollBarWidth;
             return new Panel {
-                Width = chatPanel.ClientSize.Width - 20,
+                Width = rowWidth,
                 Height = 40,
                 Margin = new Padding(5)
             };
@@ -156,6 +168,25 @@
 
             var last = chatPanel.Controls[chatPanel.Controls.Count - 1];
             chatPanel.ScrollControlIntoView(last);
+        }
+
+        private void listBoxUsers_DrawItem(object sender, DrawItemEventArgs e) {
+            if (e.Index < 0)
+                return;
+
+            string item = listBoxUsers.Items[e.Index].ToString();
+            Color textColor = Color.Black;
+
+            if (item == username)
+                textColor = Color.Blue;
+
+            e.DrawBackground();
+
+            using (Brush brush = new SolidBrush(textColor)) {
+                e.Graphics.DrawString(item, e.Font, brush, e.Bounds);
+            }
+
+            e.DrawFocusRectangle();
         }
     }
 }
