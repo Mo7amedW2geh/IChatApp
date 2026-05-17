@@ -20,6 +20,7 @@ namespace IChatApp {
                 return;
             }
 
+            UsersFile.RemoveInactiveUsers();
             bool exists = UsersFile.ReadUsersInfo().Any(u => u.Username == Username);
 
             if (exists) {

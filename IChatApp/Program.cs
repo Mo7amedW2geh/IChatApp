@@ -6,7 +6,6 @@ namespace IChatApp {
         [STAThread]
         static void Main() {
             ApplicationConfiguration.Initialize();
-            UsersFile.RemoveInactiveUsers();
 
             var usernameForm = new UsernameForm();
 
