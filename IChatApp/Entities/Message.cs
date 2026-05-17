@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace IChatTest.Entities {
+﻿namespace IChatApp.Entities {
     internal class Message {
         public string Sender { get; set; }
         public string Text { get; set; }

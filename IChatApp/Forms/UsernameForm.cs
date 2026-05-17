@@ -1,6 +1,6 @@
-﻿using IChatTest.Mangers;
+﻿using IChatApp.Mangers;
 
-namespace IChatTest {
+namespace IChatApp {
     public partial class UsernameForm : Form {
 
         // Fields

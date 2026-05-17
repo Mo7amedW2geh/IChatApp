@@ -1,7 +1,7 @@
-﻿using IChatTest.Mangers;
-using Message = IChatTest.Entities.Message;
+﻿using IChatApp.Mangers;
+using Message = IChatApp.Entities.Message;
 
-namespace IChatTest {
+namespace IChatApp {
     public partial class ChatWindow : Form {
 
         // Fields

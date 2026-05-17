@@ -1,6 +1,6 @@
-﻿using User = IChatTest.Entities.User;
+﻿using User = IChatApp.Entities.User;
 
-namespace IChatTest.Mangers {
+namespace IChatApp.Mangers {
     internal class UsersFile {
 
         // Fields

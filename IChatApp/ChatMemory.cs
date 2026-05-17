@@ -1,4 +1,4 @@
-﻿namespace IChatTest
+﻿namespace IChatApp
 {
     internal class ChatMemory
     {

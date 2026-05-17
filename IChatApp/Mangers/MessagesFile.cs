@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using Message = IChatTest.Entities.Message;
+using Message = IChatApp.Entities.Message;
 
-namespace IChatTest.Mangers {
+namespace IChatApp.Mangers {
     internal class MessagesFile {
 
         // Fields

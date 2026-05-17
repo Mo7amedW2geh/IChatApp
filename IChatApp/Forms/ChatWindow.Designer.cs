@@ -1,4 +1,4 @@
-﻿namespace IChatTest {
+﻿namespace IChatApp {
     partial class ChatWindow {
         /// <summary>
         /// Required designer variable.

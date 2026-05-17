@@ -1,1 +1,1 @@
-# IChatTest
+# IChatApp

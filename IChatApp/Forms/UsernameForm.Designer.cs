@@ -1,4 +1,4 @@
-﻿namespace IChatTest {
+﻿namespace IChatApp {
     partial class UsernameForm {
         /// <summary>
         /// Required designer variable.
