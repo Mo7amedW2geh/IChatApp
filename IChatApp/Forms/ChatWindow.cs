@@ -21,7 +21,7 @@ namespace IChatApp {
                 Sender = username,
                 Text = $"{username} joined the chat",
                 Type = "system",
-                Time = DateTime.Now.ToString("hh:mm:ss")
+                Time = DateTime.Now.ToString("h:mm tt")
             });
 
             RefreshChat();
@@ -36,7 +36,7 @@ namespace IChatApp {
                 Sender = username,
                 Text = textBoxMessage.Text,
                 Type = "user",
-                Time = DateTime.Now.ToString("hh:mm:ss")
+                Time = DateTime.Now.ToString("h:mm tt")
             });
 
             textBoxMessage.Clear();
@@ -78,7 +78,7 @@ namespace IChatApp {
                 Sender = username,
                 Text = $"{username} left the chat",
                 Type = "system",
-                Time = DateTime.Now.ToString("hh:mm:ss")
+                Time = DateTime.Now.ToString("h:mm tt")
             });
             base.OnFormClosing(e);
         }
@@ -114,30 +114,37 @@ namespace IChatApp {
             listBoxUsers.EndUpdate();
         }
 
-        // Message Rendering
         private void AddLeft(Message msg) {
-            var lbl = CreateBubble($"{msg.Sender}:\n{msg.Text}\n[{msg.Time}] ", Color.LightGray);
-            var row = CreateRow();
+            Panel row = CreateRow();
 
-            row.Controls.Add(lbl);
-            lbl.Location = new Point(0, 5);
-            row.Height = lbl.Height + 10;
+            Panel bubble = CreateMessageBubble(
+                msg.Sender,
+                msg.Text,
+                msg.Time,
+                Color.LightGray
+            );
+
+            row.Controls.Add(bubble);
+
+            bubble.Location = new Point(0, 5);
+
+            row.Height = bubble.Height + 10;
+
             chatPanel.Controls.Add(row);
         }
 
         private void AddRight(Message msg) {
-            var lbl = CreateBubble($"you:\n{msg.Text}\n[{msg.Time}] ", Color.LightBlue);
-            var row = CreateRow();
+            Panel row = CreateRow();
+            Panel bubble = CreateMessageBubble("You", msg.Text, msg.Time, Color.LightBlue);
 
-            lbl.Anchor = AnchorStyles.Right | AnchorStyles.Top;
-            row.Controls.Add(lbl);
-            lbl.Location = new Point(rowWidth - lbl.Width, 5);
-            row.Height = lbl.Height + 10;
+            row.Controls.Add(bubble);
+            bubble.Location = new Point(rowWidth - bubble.Width, 5);
+            row.Height = bubble.Height + 10;
             chatPanel.Controls.Add(row);
         }
 
         private void AddCenter(Message msg) {
-            var lbl = CreateBubble(msg.Text, Color.Gold);
+            var lbl = CreateSystemBubble(msg.Text, Color.Gold);
             var row = CreateRow();
 
             row.Controls.Add(lbl);
@@ -147,14 +154,60 @@ namespace IChatApp {
         }
 
         // UI Helpers
-        private Label CreateBubble(string text, Color color) {
+        private Label CreateSystemBubble(string text, Color color) {
             return new Label {
                 Text = text,
                 BackColor = color,
-                Padding = new Padding(8),
+                Padding = new Padding(4),
                 AutoSize = true,
                 MaximumSize = new Size(rowWidth - 10, 0)
             };
+        }
+
+        private Label CreateLabel(string text, Color color, float size = 9, bool bold = false) {
+            return new Label {
+                Text = text,
+                ForeColor = color,
+                Font = new Font("Segoe UI", size, bold ? FontStyle.Bold : FontStyle.Regular),
+                AutoSize = true
+            };
+        }
+
+        private Panel CreateMessageBubble(string sender, string text, string time, Color bubbleColor, bool isSystem = false) {
+            Panel bubble = new() {
+                BackColor = bubbleColor,
+                AutoSize = true,
+                Padding = new Padding(8),
+                MaximumSize = new Size(rowWidth - 20, 0)
+            };
+
+            int currentY = 0;
+
+            Label lblName = CreateLabel(sender, GetUserColor(sender), 9, true);
+            lblName.Location = new Point(0, currentY);
+            bubble.Controls.Add(lblName);
+            currentY = lblName.Bottom + 2;
+       
+
+            Label lblText = CreateLabel(text, Color.Black, 9);
+            lblText.MaximumSize = new Size(rowWidth - 40, 0);
+            lblText.Location = new Point(0, currentY);
+            bubble.Controls.Add(lblText);
+            currentY = lblText.Bottom + 4;
+
+            Label lblTime = CreateLabel(time, Color.Gray, 7);
+            lblTime.Location = new Point(0, currentY);
+            bubble.Controls.Add(lblTime);
+            bubble.Height = lblTime.Bottom + 5;
+
+            return bubble;
+        }
+
+        private Color GetUserColor(string username) {
+            if (username == this.username || username == "You")
+                return Color.DodgerBlue;
+
+            return Color.FromArgb(80, 80, 80);
         }
 
         private Panel CreateRow() {
