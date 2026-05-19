@@ -117,19 +117,12 @@ namespace IChatApp {
         private void AddLeft(Message msg) {
             Panel row = CreateRow();
 
-            Panel bubble = CreateMessageBubble(
-                msg.Sender,
-                msg.Text,
-                msg.Time,
-                Color.LightGray
-            );
+            Panel bubble = CreateMessageBubble(msg.Sender, msg.Text, msg.Time, Color.LightGray);
 
             row.Controls.Add(bubble);
-
+            bubble.PerformLayout();
             bubble.Location = new Point(0, 5);
-
             row.Height = bubble.Height + 10;
-
             chatPanel.Controls.Add(row);
         }
 
@@ -138,6 +131,7 @@ namespace IChatApp {
             Panel bubble = CreateMessageBubble("You", msg.Text, msg.Time, Color.LightBlue);
 
             row.Controls.Add(bubble);
+            bubble.PerformLayout();
             bubble.Location = new Point(rowWidth - bubble.Width, 5);
             row.Height = bubble.Height + 10;
             chatPanel.Controls.Add(row);
@@ -173,32 +167,47 @@ namespace IChatApp {
             };
         }
 
-        private Panel CreateMessageBubble(string sender, string text, string time, Color bubbleColor, bool isSystem = false) {
-            Panel bubble = new() {
-                BackColor = bubbleColor,
-                AutoSize = true,
-                Padding = new Padding(8),
-                MaximumSize = new Size(rowWidth - 20, 0)
-            };
-
-            int currentY = 0;
+        private Panel CreateMessageBubble(string sender, string text, string time, Color bubbleColor) {
+            int bubbleMaxWidth = rowWidth - 20;
 
             Label lblName = CreateLabel(sender, GetUserColor(sender), 9, true);
-            lblName.Location = new Point(0, currentY);
-            bubble.Controls.Add(lblName);
-            currentY = lblName.Bottom + 2;
-       
-
             Label lblText = CreateLabel(text, Color.Black, 9);
-            lblText.MaximumSize = new Size(rowWidth - 40, 0);
-            lblText.Location = new Point(0, currentY);
-            bubble.Controls.Add(lblText);
+            Label lblTime = CreateLabel(time, Color.Gray, 7);
+
+            lblName.MaximumSize = new Size(bubbleMaxWidth - 16, 0);
+            lblText.MaximumSize = new Size(bubbleMaxWidth - 16, 0);
+            lblTime.MaximumSize = new Size(bubbleMaxWidth - 16, 0);
+
+            using (Graphics g = Graphics.FromHwnd(IntPtr.Zero)) {
+                SizeF nameSize = g.MeasureString(lblName.Text, lblName.Font, bubbleMaxWidth - 16);
+                SizeF textSize = g.MeasureString(lblText.Text, lblText.Font, bubbleMaxWidth - 16);
+                SizeF timeSize = g.MeasureString(lblTime.Text, lblTime.Font, bubbleMaxWidth - 16);
+
+                lblName.Size = new Size((int)Math.Ceiling(nameSize.Width), (int)Math.Ceiling(nameSize.Height));
+                lblText.Size = new Size((int)Math.Ceiling(textSize.Width), (int)Math.Ceiling(textSize.Height));
+                lblTime.Size = new Size((int)Math.Ceiling(timeSize.Width), (int)Math.Ceiling(timeSize.Height));
+            }
+
+            int bubbleWidth = Math.Min(Math.Max(lblName.Width, Math.Max(lblText.Width, lblTime.Width)) + 16, bubbleMaxWidth);
+
+            int currentY = 8;
+            lblName.Location = new Point(8, currentY);
+            currentY = lblName.Bottom + 2;
+
+            lblText.Location = new Point(8, currentY);
             currentY = lblText.Bottom + 4;
 
-            Label lblTime = CreateLabel(time, Color.Gray, 7);
-            lblTime.Location = new Point(0, currentY);
+            lblTime.Location = new Point(8, currentY);
+
+            Panel bubble = new Panel {
+                BackColor = bubbleColor,
+                Width = bubbleWidth,
+                Height = lblTime.Bottom + 13
+            };
+
+            bubble.Controls.Add(lblName);
+            bubble.Controls.Add(lblText);
             bubble.Controls.Add(lblTime);
-            bubble.Height = lblTime.Bottom + 5;
 
             return bubble;
         }
