@@ -9,10 +9,12 @@ namespace IChatApp.Mangers {
         private static readonly string directoryPath = Path.Combine(projectPath, "SharedFiles");
         private static readonly string path = Path.Combine(directoryPath, "chat.json");
         private static readonly Mutex mutex = new(false, "Global\\ChatMutex");
+        private static readonly SemaphoreSlim semaphore = new(1, 1);
 
         // Methods
         public static void WriteMessage(Message msg) {
-            mutex.WaitOne();
+            // mutex.WaitOne();
+            semaphore.Wait();
             try {
                 Directory.CreateDirectory(directoryPath);
                 if (!File.Exists(path))
@@ -20,7 +22,8 @@ namespace IChatApp.Mangers {
 
                 File.AppendAllText(path, JsonSerializer.Serialize(msg) + "\n");
             } finally {
-                mutex.ReleaseMutex();
+                // mutex.ReleaseMutex();
+                semaphore.Release();
             }
         }
 
