@@ -8,10 +8,12 @@ namespace IChatApp.Mangers {
         private static readonly string directoryPath = Path.Combine(projectPath, "SharedFiles");
         private static readonly string path = Path.Combine(directoryPath, "users.txt");
         private static readonly Mutex mutex = new(false, "Global\\UserMutex");
+        private static readonly SemaphoreSlim semaphore = new(1, 1);
 
         // Methods
         public static void AddOrUpdateUser(string username) {
-            mutex.WaitOne();
+            // mutex.WaitOne();
+            semaphore.Wait();
             try {
                 Directory.CreateDirectory(directoryPath);
                 if (!File.Exists(path))
@@ -27,12 +29,14 @@ namespace IChatApp.Mangers {
 
                 SaveUsers(users);
             } finally {
-                mutex.ReleaseMutex();
+                // mutex.ReleaseMutex();
+                semaphore.Release();
             }
         }
 
         public static void RemoveUser(string username) {
-            mutex.WaitOne();
+            // mutex.WaitOne();
+            semaphore.Wait();
             try {
                 Directory.CreateDirectory(directoryPath);
                 if (!File.Exists(path)) return;
@@ -40,17 +44,20 @@ namespace IChatApp.Mangers {
                 var users = ReadUsersInfo().Where(u => u.Username != username).ToList();
                 SaveUsers(users);
             } finally {
-                mutex.ReleaseMutex();
+                // mutex.ReleaseMutex();
+                semaphore.Release();
             }
         }
 
         public static void RemoveInactiveUsers() {
-            mutex.WaitOne();
+            // mutex.WaitOne();
+            semaphore.Wait();
             try {
                 var users = ReadUsersInfo().Where(u => (DateTime.Now - u.LastSeen).TotalSeconds < 5).ToList();
                 SaveUsers(users);
             } finally {
-                mutex.ReleaseMutex();
+                // mutex.ReleaseMutex();
+                semaphore.Release();
             }
         }
 
