@@ -78,12 +78,6 @@ namespace IChatApp.Mangers {
             return users;
         }
 
-        public static string[] ReadUsers() {
-            Directory.CreateDirectory(directoryPath);
-            if (!File.Exists(path)) return [];
-            return File.ReadAllLines(path);
-        }
-
         private static void SaveUsers(List<User> users) {
             File.WriteAllLines(path, users.Select(u => $"{u.Username}|{u.LastSeen:o}"));
         }

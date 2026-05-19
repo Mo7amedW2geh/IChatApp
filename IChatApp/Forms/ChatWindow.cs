@@ -39,6 +39,7 @@ namespace IChatApp {
                 Time = DateTime.Now.ToString("h:mm tt")
             });
 
+            RefreshChat();
             textBoxMessage.Clear();
         }
 
